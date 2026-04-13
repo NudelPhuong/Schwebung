@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strich-Analogie zur akustischen Schwebung</title>
+
+<style>
+body { 
+    font-family: sans-serif; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 20px; 
+    background: #f0f0f0; 
+}
+
+h2 { margin-bottom: 10px; }
+
+.explanation {
+    position: absolute;
+    top: 105px;
+    left: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    max-width: 330px;
+    font-size: 14px;
+}
+
+.controls { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+    margin: 20px 0; 
+    display: grid; 
+    grid-template-columns: 1fr 140px 60px; 
+    gap: 10px; 
+    align-items: center; 
+}
+
+.canvas-container { 
+    background: white; 
+    padding: 10px; 
+    border-radius: 4px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    position: relative; 
+    width: 800px; 
+    height: 300px; 
+    overflow: hidden; 
+}
+
+canvas { position: absolute; left: 10px; top: 10px; }
+
+label { font-weight: bold; }
+
+.info { margin-top: 15px; color: #555; text-align: center; }
+</style>
+</head>
+
+<body>
+
+<div class="explanation">
+In dieser Simulation werden zwei Strichmuster übereinandergelegt.<br><br>
+Wähle für beide Strichmuster eine Farbe aus.<br><br>
+Stelle für beide Muster die Anzahl der Striche ein und blende sie ein oder aus.<br><br>
+Was kannst du beobachten?
+</div>
+
+<h2>Strich-Analogie zur akustischen Schwebung</h2>
+
+<div class="controls">
+
+<label>Anzahl Striche A:</label>
+<input type="range" id="range1" min="150" max="200" value="170">
+<span id="val1">170</span>
+
+<label>Anzahl Striche B:</label>
+<input type="range" id="range2" min="150" max="200" value="165">
+<span id="val2">165</span>
+
+<label>Farbe Striche A:</label>
+<select id="color1">
+<option value="black">Schwarz</option>
+<option value="blue" selected>Blau</option>
+<option value="red">Rot</option>
+<option value="green">Grün</option>
+<option value="purple">Lila</option>
+<option value="orange">Orange</option>
+<option value="brown">Braun</option>
+<option value="cyan">Türkis</option>
+<option value="magenta">Magenta</option>
+<option value="gray">Grau</option>
+</select>
+<span></span>
+
+<label>Farbe Striche B:</label>
+<select id="color2">
+<option value="black">Schwarz</option>
+<option value="red" selected>Rot</option>
+<option value="blue">Blau</option>
+<option value="green">Grün</option>
+<option value="purple">Lila</option>
+<option value="orange">Orange</option>
+<option value="brown">Braun</option>
+<option value="cyan">Türkis</option>
+<option value="magenta">Magenta</option>
+<option value="gray">Grau</option>
+</select>
+<span></span>
+
+<label>Striche A anzeigen:</label>
+<input type="checkbox" id="toggleA" checked>
+<span></span>
+
+<label>Striche B anzeigen:</label>
+<input type="checkbox" id="toggleB">
+<span></span>
+
+<label>Schwebungsbäuche anzeigen:</label>
+<input type="checkbox" id="toggleBeats">
+<span></span>
+
+</div>
+
+<div class="canvas-container">
+<canvas id="canvas1" width="780" height="280"></canvas>
+<canvas id="canvas2" width="780" height="280"></canvas>
+<canvas id="canvasBeats" width="780" height="280"></canvas>
+</div>
+
+<div class="info">
+<strong>f<sub>Schwebung</sub> = |f₁ − f₂|</strong>
+</div>
+
+<script>
+
+// Elemente holen
+const range1 = document.getElementById('range1');
+const range2 = document.getElementById('range2');
+const color1 = document.getElementById('color1');
+const color2 = document.getElementById('color2');
+const toggleA = document.getElementById('toggleA');
+const toggleB = document.getElementById('toggleB');
+const toggleBeats = document.getElementById('toggleBeats');
+const val1 = document.getElementById('val1');
+const val2 = document.getElementById('val2');
+
+const c1 = document.getElementById('canvas1');
+const c2 = document.getElementById('canvas2');
+const cBeats = document.getElementById('canvasBeats');
+
+const ctx1 = c1.getContext('2d');
+const ctx2 = c2.getContext('2d');
+const ctxBeats = cBeats.getContext('2d');
+
+function draw(){
+
+    const n1 = parseInt(range1.value);
+    const n2 = parseInt(range2.value);
+
+    val1.textContent = n1;
+    val2.textContent = n2;
+
+    const showA = toggleA.checked;
+    const showB = toggleB.checked;
+    const showBeats = toggleBeats.checked;
+
+    ctx1.clearRect(0,0,c1.width,c1.height);
+    ctx2.clearRect(0,0,c2.width,c2.height);
+    ctxBeats.clearRect(0,0,cBeats.width,cBeats.height);
+
+    // Striche A
+    if(showA){
+        ctx1.strokeStyle = color1.value;
+        for(let i=0;i<=n1;i++){
+            let x = (i/n1)*c1.width;
+            ctx1.beginPath();
+            ctx1.moveTo(x,0);
+            ctx1.lineTo(x,c1.height);
+            ctx1.stroke();
+        }
+    }
+
+    // Striche B
+    if(showB){
+        ctx2.strokeStyle = color2.value;
+        for(let i=0;i<=n2;i++){
+            let x = (i/n2)*c2.width;
+            ctx2.beginPath();
+            ctx2.moveTo(x,0);
+            ctx2.lineTo(x,c2.height);
+            ctx2.stroke();
+        }
+    }
+
+    // Schwebungsbäuche
+    if(showA && showB && showBeats){
+        const diff = Math.abs(n1 - n2);
+        if(diff > 0){
+            const spacing = cBeats.width / diff;
+            ctxBeats.fillStyle = "rgba(0,0,0,0.35)";
+            for(let i=0;i<diff;i++){
+                ctxBeats.fillRect(i*spacing + spacing/4 ,0,spacing/2,cBeats.height);
+            }
+        }
+    }
+}
+
+// Event Listener
+[range1, range2, color1, color2, toggleA, toggleB, toggleBeats]
+.forEach(el => el.addEventListener('input', draw));
+
+// Initial zeichnen
+draw();
+
+</script>
+
+</body>
+</html>
